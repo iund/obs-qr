@@ -11,5 +11,5 @@ Setup:
 
 Notes:
 - Port 5000 (TCP), allowed through the firewall for private/domain networks.
-- QR URL contains a secret token; reprint if `%AppData%\ObsQr\settings.json` is deleted.
+- The QR URL is plain `http://<pc-name>.local:5000/`. Anyone on the Wi-Fi can open it; set a PIN via tray icon > Set phone PIN to restrict control. The OBS WebSocket password only protects the PC-to-OBS link.
 - OBS must already have a stream service/server configured; the app only sets the key.

@@ -7,7 +7,7 @@ namespace ObsQr;
 
 static class Web
 {
-    public static string HostUrl(Settings s) => $"http://{Environment.MachineName.ToLowerInvariant()}.local:{s.Port}/?t={s.Token}";
+    public static string HostUrl(Settings s) => $"http://{Environment.MachineName.ToLowerInvariant()}.local:{s.Port}/";
 
     static string IpUrl(Settings s)
     {
@@ -15,7 +15,7 @@ static class Web
             .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback && n.GetIPProperties().GatewayAddresses.Count > 0)
             .SelectMany(n => n.GetIPProperties().UnicastAddresses)
             .FirstOrDefault(a => a.Address.AddressFamily == AddressFamily.InterNetwork)?.Address;
-        return $"http://{ip}:{s.Port}/?t={s.Token}";
+        return $"http://{ip}:{s.Port}/";
     }
 
     static string Ssid()
@@ -43,6 +43,7 @@ static class Web
 
     public record StartReq(string Key, bool Auto);
     public record AutoReq(bool Auto);
+    public record LoginReq(string Pin);
 
     public static WebApplication Build(Settings s, Ctl ctl)
     {
@@ -50,16 +51,14 @@ static class Web
         b.WebHost.UseUrls($"http://0.0.0.0:{s.Port}");
         b.Logging.ClearProviders();
         var app = b.Build();
-        bool Authed(HttpContext c) => c.Request.Cookies["t"] == s.Token;
+        bool Authed(HttpContext c) => s.Pin == "" || c.Request.Cookies["t"] == s.Session;
 
-        app.MapGet("/", (HttpContext c) =>
+        app.MapGet("/", (HttpContext c) => Results.Content(Authed(c) ? Pages.Phone : Pages.Login, "text/html; charset=utf-8"));
+        app.MapPost("/api/login", async (HttpContext c, LoginReq r) =>
         {
-            if (c.Request.Query["t"] == s.Token)
-            {
-                c.Response.Cookies.Append("t", s.Token, new CookieOptions { HttpOnly = true, MaxAge = TimeSpan.FromDays(3650), SameSite = SameSiteMode.Lax });
-                return Results.Redirect("/");
-            }
-            return Results.Content(Authed(c) ? Pages.Phone : Pages.Denied, "text/html; charset=utf-8");
+            if (r.Pin != s.Pin) { await Task.Delay(1000); return Results.Unauthorized(); }
+            c.Response.Cookies.Append("t", s.Session, new CookieOptions { HttpOnly = true, MaxAge = TimeSpan.FromDays(3650), SameSite = SameSiteMode.Lax });
+            return Results.Ok();
         });
         app.MapGet("/print", (HttpContext c) =>
             c.Connection.RemoteIpAddress is { } ip && IPAddress.IsLoopback(ip) ? Results.Content(PrintPage(s), "text/html; charset=utf-8") : Results.NotFound());

@@ -2,9 +2,17 @@ namespace ObsQr;
 
 static class Pages
 {
-    public const string Denied = """
+    public const string Login = """
 <!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OBS Stream Control</title>
-<body style="font:16px system-ui;background:#14161a;color:#e8eaed;padding:24px"><h2>Scan the QR code</h2><p>This page opens only from the printed QR code for this PC.</p>
+<body style="font:16px system-ui;background:#14161a;color:#e8eaed;padding:16px;max-width:480px;margin:auto;display:grid;gap:12px">
+<h2 style="margin:4px 0">OBS Stream Control</h2><label for="pin">PIN</label>
+<input id="pin" type="password" inputmode="numeric" autocomplete="off" style="padding:12px;font-size:16px;border-radius:8px;border:1px solid #333a45;background:#1e2128;color:inherit">
+<button id="go" style="padding:14px;font-size:16px;font-weight:600;border:0;border-radius:8px;background:#4c8dff;color:#fff">Unlock</button><div id="m" style="color:#e74c3c"></div>
+<script>
+go.onclick=async()=>{const r=await fetch('/api/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pin:pin.value})});
+ if(r.ok)location.reload();else m.textContent='Wrong PIN'};
+pin.onkeydown=e=>{if(e.key==='Enter')go.click()};
+</script>
 """;
 
     public const string Print = """
@@ -80,7 +88,7 @@ $('start').onclick=async()=>{$('start').disabled=true;$('msg').textContent='Send
 $('stop').onclick=async()=>{$('stop').disabled=true;try{await post('/api/stop');$('msg').textContent=''}catch(e){$('msg').textContent=e.message}};
 function set(s,c){$('state').textContent=s;$('state').className='pill '+c}
 async function poll(){
- try{const r=await fetch('/api/status');if(!r.ok)throw 0;const s=await r.json();
+ try{const r=await fetch('/api/status');if(r.status==401){location.reload();return}if(!r.ok)throw 0;const s=await r.json();
   if(!seeded){seeded=true;$('auto').checked=s.auto}
   $('key').placeholder=s.hasKey?'Saved key '+s.keyHint:'Paste stream key';
   $('obs').textContent=s.obs?'OBS connected':'OBS not running';

@@ -31,6 +31,12 @@ static class Program
             var p = Prompt("OBS WebSocket password", "Password from OBS > Tools > WebSocket Server Settings:");
             if (p != null) { s.ObsPass = p; s.Save(); }
         });
+        menu.Items.Add("Set phone PIN (blank = none)…", null, (_, _) =>
+        {
+            var p = Prompt("Phone PIN", "PIN the phone page asks for (blank removes it):");
+            if (p == null) return;
+            s.Pin = p; s.Session = Guid.NewGuid().ToString("N"); s.Save();
+        });
         menu.Items.Add("Exit", null, (_, _) => Application.Exit());
         using var tray = new NotifyIcon { Icon = SystemIcons.Application, Visible = true, ContextMenuStrip = menu, Text = "OBS QR Stream Control" };
         tray.DoubleClick += (_, _) => open("/print");
