@@ -1,8 +1,8 @@
 # obs-qr
 
-Windows tray app. A printed QR code opens a phone page, served by the PC, to start/stop an OBS stream.
+Print out a QR code then scan it later to control an active OBS stream. Connect to the same wifi as a PC running OBS and this tray app and control it via the web browser.
 
-Install: download `ObsQr-Setup-<version>.exe` from Releases and run it.
+To install, download the latest installer from [Releases](https://github.com/iund/obs-qr/releases) and run it.
 
 Setup:
 - In OBS: Tools > WebSocket Server Settings > enable server, set a password.
@@ -13,5 +13,3 @@ Notes:
 - Port 5000 (TCP), allowed through the firewall for private/domain networks.
 - QR URL contains a secret token; reprint if `%AppData%\ObsQr\settings.json` is deleted.
 - OBS must already have a stream service/server configured; the app only sets the key.
-
-Build: `.github/workflows/release.yml` runs release-it (tag only, conventional commits) on every push to `main`, then `build.yml` builds `ObsQr-<version>.msi` (WiX) and `ObsQr-Setup-<version>.exe` (Inno Setup) and attaches both to the GitHub Release. Both upgrade in place and uninstall.
