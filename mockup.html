@@ -26,7 +26,17 @@ input[type=checkbox]{width:44px;height:24px;accent-color:var(--acc)}
 .stat{background:#14161a;border-radius:8px;padding:10px}.stat b{display:block;font-size:20px}.stat span{font-size:12px;color:var(--mut)}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px}
 #msg{font-size:13px;color:var(--mut);min-height:18px}
-</style></head><body><main>
+.tabs{display:flex;gap:6px}.tabs button{flex:1;background:#333a45;padding:10px;font-size:14px}.tabs .on{background:var(--acc)}
+.sheet{background:#fff;color:#000;border-radius:12px;padding:24px;display:grid;gap:10px;justify-items:center;text-align:center}
+.sheet h2{margin:0;font-size:22px}.sheet p{margin:0}.sheet code{background:#eee;padding:2px 6px;border-radius:4px;word-break:break-all}
+#qr svg{width:220px;height:220px;max-width:100%}
+.fine{font-size:12px;color:#555}
+#pc button{background:var(--acc)}
+@media print{body *{visibility:hidden}.sheet,.sheet *{visibility:visible}.sheet{position:absolute;inset:0;border-radius:0}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script></head><body><main>
+<div class="tabs"><button class="on" id="t1">Phone page</button><button id="t2">PC app: Print QR</button></div>
+<div id="phone" style="display:contents">
 <h1>OBS Stream Control <span class="pill" id="obs"><i class="dot"></i>OBS connected</span></h1>
 
 <section class="card">
@@ -48,7 +58,20 @@ input[type=checkbox]{width:44px;height:24px;accent-color:var(--acc)}
     <div class="stat"><b id="scene">Main Scene</b><span>Scene</span></div>
   </div>
 </section>
+</div>
+<div id="pc" style="display:none;gap:12px">
+<section class="card"><b>Print QR code</b>
+<label for="host">Address on your Wi-Fi</label>
+<input id="host" type="text" value="http://STUDIO-PC.local:5000/?t=k9Qx2vA7" readonly>
+<small style="color:var(--mut)">Uses this PC's name, so the code keeps working if its IP changes. Phone must be on the same Wi-Fi.</small>
+<button id="print">🖨 Print QR code</button></section>
+<div class="sheet"><h2>Scan to control the stream</h2><div id="qr"></div>
+<p>Connect to Wi-Fi <b>Studio-5G</b>, then scan.</p><p class="fine">If it doesn't open, type <code id="fb">http://192.168.1.42:5000/?t=k9Qx2vA7</code></p></div>
+</div>
 <script>
+const q=qrcode(0,'M');q.addData(document.getElementById('host').value);q.make();document.getElementById('qr').innerHTML=q.createSvgTag({cellSize:4,margin:0,scalable:true});
+const tab=n=>{document.getElementById('phone').style.display=n?'none':'contents';document.getElementById('pc').style.display=n?'grid':'none';t1.className=n?'':'on';t2.className=n?'on':''};
+t1.onclick=()=>tab(0);t2.onclick=()=>tab(1);print.onclick=()=>window.print();
 const $=id=>document.getElementById(id);let t0=null,timer;
 const pad=n=>String(n).padStart(2,'0');
 function set(s,c){$('state').textContent=s;$('state').className='pill '+c}
