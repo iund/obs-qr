@@ -1,0 +1,35 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="OBS QR Stream Control" Manufacturer="iund" Version="$(Version)" UpgradeCode="3E6B1C0A-7D54-4A8F-A2C9-5B0E9D7F1A42" Scope="perMachine">
+    <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="ObsQr">
+        <Component Id="MainExe" Guid="*">
+          <File Id="ObsQrExe" Source="$(Source)" KeyPath="yes" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Component Id="StartMenu" Guid="*">
+        <Shortcut Id="Lnk" Name="OBS QR Stream Control" Target="[INSTALLFOLDER]ObsQr.exe" WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU" Key="Software\ObsQr" Name="StartMenu" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </StandardDirectory>
+
+    <Feature Id="Main">
+      <ComponentRef Id="MainExe" />
+      <ComponentRef Id="StartMenu" />
+    </Feature>
+
+    <CustomAction Id="FwAdd" Directory="INSTALLFOLDER" Execute="deferred" Impersonate="no" Return="ignore"
+      ExeCommand="&quot;[System64Folder]netsh.exe&quot; advfirewall firewall add rule name=&quot;OBS QR Stream Control&quot; dir=in action=allow protocol=TCP localport=5000 profile=private,domain" />
+    <CustomAction Id="FwDel" Directory="INSTALLFOLDER" Execute="deferred" Impersonate="no" Return="ignore"
+      ExeCommand="&quot;[System64Folder]netsh.exe&quot; advfirewall firewall delete rule name=&quot;OBS QR Stream Control&quot;" />
+    <InstallExecuteSequence>
+      <Custom Action="FwDel" After="InstallInitialize" Condition="REMOVE=&quot;ALL&quot;" />
+      <Custom Action="FwAdd" After="InstallFiles" Condition="NOT REMOVE" />
+    </InstallExecuteSequence>
+  </Package>
+</Wix>

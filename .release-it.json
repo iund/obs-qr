@@ -1,0 +1,6 @@
+{
+  "git": { "commit": false, "tag": true, "push": true, "tagName": "v${version}", "requireCleanWorkingDir": false, "requireUpstream": false },
+  "npm": { "publish": false },
+  "github": { "release": false },
+  "plugins": { "@release-it/conventional-changelog": { "preset": { "name": "angular" }, "infile": false } }
+}
