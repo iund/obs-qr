@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OBS QR Stream Control</title>
+<meta name="description" content="Phone page, opened by scanning a QR code, for starting and stopping an OBS stream on the host PC.">
+<style>
+:root{--bg:#14161a;--card:#1e2128;--fg:#e8eaed;--mut:#8b919c;--ok:#2ecc71;--bad:#e74c3c;--warn:#f1c40f;--acc:#4c8dff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px system-ui,sans-serif;display:flex;justify-content:center}
+main{width:100%;max-width:480px;padding:16px;display:grid;gap:12px}
+h1{font-size:18px;margin:4px 0;display:flex;justify-content:space-between;align-items:center}
+.card{background:var(--card);border-radius:12px;padding:14px;display:grid;gap:10px}
+label{font-size:13px;color:var(--mut)}
+.row{display:flex;gap:8px;align-items:center}
+input[type=password],input[type=text]{flex:1;min-width:0;padding:12px;border-radius:8px;border:1px solid #333a45;background:#14161a;color:var(--fg);font-size:16px}
+button{border:0;border-radius:8px;padding:14px;font-size:16px;font-weight:600;color:#fff;cursor:pointer}
+button:disabled{opacity:.4}
+.eye{background:#333a45;padding:12px}
+#start{background:var(--ok);flex:1}#stop{background:var(--bad);flex:1}
+.sw{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.sw small{display:block;color:var(--mut);font-size:12px}
+input[type=checkbox]{width:44px;height:24px;accent-color:var(--acc)}
+.pill{padding:4px 10px;border-radius:99px;font-size:13px;font-weight:700;background:#333a45}
+.live{background:var(--bad)}.off{background:#333a45}.wait{background:var(--warn);color:#000}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:#14161a;border-radius:8px;padding:10px}.stat b{display:block;font-size:20px}.stat span{font-size:12px;color:var(--mut)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px}
+#msg{font-size:13px;color:var(--mut);min-height:18px}
+</style></head><body><main>
+<h1>OBS Stream Control <span class="pill" id="obs"><i class="dot"></i>OBS connected</span></h1>
+
+<section class="card">
+  <label for="key">Stream key</label>
+  <div class="row"><input id="key" type="password" value="live_8f3a91c2_xxxxxxxxxxxx" autocomplete="off"><button class="eye" id="eye" aria-label="Show key">👁</button></div>
+  <div class="sw"><div>Auto-start with last key<small>Starts streaming when OBS launches on the PC</small></div><input type="checkbox" id="auto" checked></div>
+  <div class="row"><button id="start">▶ Start stream</button><button id="stop" disabled>■ Stop stream</button></div>
+  <div id="msg"></div>
+</section>
+
+<section class="card">
+  <div class="sw"><b>Status</b><span class="pill off" id="state">Offline</span></div>
+  <div class="grid">
+    <div class="stat"><b id="up">00:00:00</b><span>Uptime</span></div>
+    <div class="stat"><b id="br">0 kbps</b><span>Bitrate</span></div>
+    <div class="stat"><b id="fps">0</b><span>FPS</span></div>
+    <div class="stat"><b id="drop">0 (0%)</b><span>Dropped frames</span></div>
+    <div class="stat"><b id="cpu">4%</b><span>CPU</span></div>
+    <div class="stat"><b id="scene">Main Scene</b><span>Scene</span></div>
+  </div>
+</section>
+<script>
+const $=id=>document.getElementById(id);let t0=null,timer;
+const pad=n=>String(n).padStart(2,'0');
+function set(s,c){$('state').textContent=s;$('state').className='pill '+c}
+$('eye').onclick=()=>$('key').type=$('key').type==='password'?'text':'password';
+$('start').onclick=()=>{set('Starting…','wait');$('start').disabled=true;$('msg').textContent='Key saved on PC. Sending to OBS…';
+ setTimeout(()=>{t0=Date.now();set('● LIVE','live');$('stop').disabled=false;$('msg').textContent='Streaming.';
+  timer=setInterval(tick,1000);tick()},900)};
+$('stop').onclick=()=>{clearInterval(timer);t0=null;set('Offline','off');$('start').disabled=false;$('stop').disabled=true;$('msg').textContent='Stream stopped.';
+ ['up','br','fps','drop'].forEach((k,i)=>$(k).textContent=['00:00:00','0 kbps','0','0 (0%)'][i])};
+function tick(){const s=Math.floor((Date.now()-t0)/1000);$('up').textContent=`${pad(s/3600|0)}:${pad(s/60%60|0)}:${pad(s%60)}`;
+ $('br').textContent=(5800+Math.random()*400|0)+' kbps';$('fps').textContent='60';$('drop').textContent=(s>>3)+' (0.0%)';$('cpu').textContent=(12+Math.random()*4|0)+'%'}
+</script></main></body></html>
