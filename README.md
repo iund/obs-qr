@@ -14,4 +14,4 @@ Notes:
 - QR URL contains a secret token; reprint if `%AppData%\ObsQr\settings.json` is deleted.
 - OBS must already have a stream service/server configured; the app only sets the key.
 
-Build: `dotnet publish src/ObsQr -c Release -r win-x64 --self-contained -p:PublishSingleFile=true`; installer: Inno Setup on `installer/ObsQr.iss`. Pushing a `v*` tag builds and publishes a release.
+Build: `dotnet publish src/ObsQr -c Release -r win-x64 --self-contained -p:PublishSingleFile=true`; installer: Inno Setup on `installer/ObsQr.iss`. Every push to `main` computes the next semver tag from conventional commits (default: patch), builds, and publishes a release with `ObsQr-Setup-<version>.exe`. Add `[skip release]` to a commit message to skip.
