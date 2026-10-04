@@ -18,7 +18,7 @@ jobs:
           node-version: 20
       - name: release-it (tag only)
         run: |
-          npm install --no-save --no-package-lock release-it@18 @release-it/conventional-changelog@9
+          npm install --no-save --no-package-lock release-it@17 @release-it/conventional-changelog@9
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           npx release-it --ci
